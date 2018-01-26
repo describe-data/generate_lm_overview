@@ -1,0 +1,185 @@
+---
+title: "Generate London Market Business Data"
+author: "Mick Cooney <mickcooney@gmail.com"
+date: "25 January 2018"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+    fig_caption: yes
+    theme: cerulean
+  pdf_document: default
+---
+
+
+```{r knit_opts, include = FALSE}
+rm(list = ls())
+
+library(tidyverse)
+library(scales)
+library(cowplot)
+library(feather)
+
+
+options(width = 80
+       ,warn  = 1
+        )
+
+
+knitr::knit_hooks$set(timeit = local({
+    now = NULL
+  
+    function(before, options) {
+        if(before) {
+            now <<- Sys.time()
+        } else {
+            res = difftime(Sys.time(), now)
+            now <<- NULL
+      
+            # use options$label if you want the chunk label as well
+            message('Time for this code chunk: ', as.character(res %>% round(3)))
+        }
+    }
+}))
+
+
+knitr::opts_chunk$set(tidy   = FALSE
+                     ,cache  = FALSE
+                     ,timeit = TRUE
+                     ,message = FALSE
+                     ,warning = FALSE
+                     ,fig.height =  8
+                     ,fig.width  = 11
+                     )
+
+#source("custom_functions.R")
+
+set.seed(42)
+```
+
+# Initialise Hierarchy of Data
+
+```{r setup_country_data, echo=TRUE}
+years_of_data <- 2010:2017
+
+class_params_tbl <- tribble(
+    ~division,         ~class,         ~prem_mu, ~prem_sd, ~lr_attr_mu, ~lr_attr_sd, ~lr_ll_mu, ~lr_ll_sd, ~lr_cat_mu, ~lr_cat_sd, ~dev_attr_p1, ~dev_attr_p2, ~dev_ll_p1, ~dev_ll_p2, ~dev_cat_p1, ~dev_cat_p2,
+    "Property",        "DNF",          4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       1.5,        0.3,          0.25,         0.3,        0.25,       0.3,         0.25,       
+    "Property",        "Prop Line 2",  4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       3.0,        0.3,          0.25,         0.3,        0.25,       0.3,         0.25,       
+    "Property",        "Prop Line 3",  4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       2.0,        0.3,          0.25,         0.3,        0.25,       0.3,         0.25,       
+    "Property",        "Prop Line 4",  4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       2.0,        0.3,          0.25,         0.3,        0.25,       0.3,         0.25,       
+    "Property",        "Prop Line 5",  4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       1.0,        0.3,          0.25,         0.3,        0.25,       0.3,         0.25,       
+    "Casualty",        "DNO",          4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       3.0,        0.25,         1.0,          0.25,       1.0,        0.25,        1.0,        
+    "Casualty",        "US GL",        4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       2.0,        0.25,         1.0,          0.25,       1.0,        0.25,        1.0,        
+    "Casualty",        "UK EL",        4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       3.0,        0.25,         1.0,          0.25,       1.0,        0.25,        1.0,        
+    "Casualty",        "UK Auto XOL",  4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       3.0,        0.25,         1.0,          0.25,       1.0,        0.25,        1.0,        
+    "Casualty",        "Cas Line 2",   4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       1.0,        0.25,         1.0,          0.25,       1.0,        0.25,        1.0,        
+    "Casualty",        "Cas Line 3",   4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       1.0,        0.25,         1.0,          0.25,       1.0,        0.25,        1.0,        
+    "Casualty",        "Cas Line 4",   4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       2.0,        0.25,         1.0,          0.25,       1.0,        0.25,        1.0,        
+    "Energy & Marine", "Cargo",        4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       2.0,        0.005,        0.2,          0.005,      0.2,        0.005,       0.2,        
+    "Energy & Marine", "North Sea BI", 4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       1.0,        0.005,        0.2,          0.005,      0.2,        0.005,       0.2,        
+    "Energy & Marine", "EM Line 3",    4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       2.0,        0.005,        0.2,          0.005,      0.2,        0.005,       0.2,        
+    "Specialty",       "Aerospace",    4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       2.0,        0.1,          0.7,          0.1,        0.7,        0.1,         0.7,        
+    "Specialty",       "Event",        4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       3.0,        0.1,          0.7,          0.1,        0.7,        0.1,         0.7,        
+    "Specialty",       "Kidnap",       4.0,      0.5,      -1.0,        0.2,         -1.0,      0.3,       -3.0,       2.0,        0.1,          0.7,          0.1,        0.7,        0.1,         0.7,        
+    "Specialty",       "Satellite",    4.0,      0.5,      -6.0,        1.0,         -6.0,      1.5,       -6.0,       4.0,        0.1,          0.7,          0.1,        0.7,        0.1,         0.7
+)
+
+
+```
+
+
+# Generate Overview Data
+
+We take each class of business and calculate the yearly aggregate summary data
+for each of those classes.
+
+```{r generate_yearly_data, echo=TRUE}
+
+
+calc_yearly_data <- function(acc_years
+                            ,division,    class
+                            ,prem_mu,     prem_sd
+                            ,lr_attr_mu,  lr_attr_sd
+                            ,lr_ll_mu,    lr_ll_sd
+                            ,lr_cat_mu,   lr_cat_sd
+                            ,dev_attr_p1, dev_attr_p2
+                            ,dev_ll_p1,   dev_ll_p2
+                            ,dev_cat_p1,  dev_cat_p2) {
+
+    n_years <- length(acc_years)
+    
+    gwp     <- rlnorm(n_years, prem_mu, prem_sd)
+    
+    lr_attr <- rlnorm(n_years, lr_attr_mu, lr_attr_sd)
+    lr_ll   <- rlnorm(n_years, lr_ll_mu,   lr_ll_sd)
+    lr_cat  <- rlnorm(n_years, lr_cat_mu,  lr_cat_sd)
+    
+    
+    claim_attr_ult <- gwp * lr_attr
+    claim_ll_ult   <- gwp * lr_ll
+    claim_cat_ult  <- gwp * lr_cat
+
+    dev_year <- 1 + (max(acc_years) - acc_years)
+
+    aggr_data_tbl <- data_frame(yoa         = acc_years
+                               ,dev_year    = dev_year
+                               ,gwp         = gwp
+                               ,claim_attr_ult  = claim_attr_ult
+                               ,claim_ll_ult    = claim_ll_ult
+                               ,claim_cat_ult   = claim_cat_ult
+                               ) %>%
+        mutate(dev_attr_prop = map_dbl(dev_year, function(x) ecdf(rlnorm(100, dev_attr_p1, dev_attr_p2))(x))
+              ,dev_ll_prop   = map_dbl(dev_year, function(x) ecdf(rlnorm(100, dev_ll_p1,   dev_ll_p2))(x))
+              ,dev_cat_prop  = map_dbl(dev_year, function(x) ecdf(rlnorm(100, dev_cat_p1,  dev_cat_p2))(x))
+              ,claim_total_ult = claim_attr_ult + claim_ll_ult + claim_cat_ult
+              ,claim_attr_inc  = claim_attr_ult * dev_attr_prop 
+              ,claim_ll_inc    = claim_ll_ult   * dev_ll_prop 
+              ,claim_cat_inc   = claim_cat_ult  * dev_cat_prop 
+              ,claim_total_inc = claim_attr_inc + claim_ll_inc + claim_cat_inc
+               ) %>%
+        select(yoa, gwp
+              ,claim_attr_ult, claim_ll_ult, claim_cat_ult, claim_total_ult
+              ,claim_attr_inc, claim_ll_inc, claim_cat_inc, claim_total_inc)
+
+    return(aggr_data_tbl)
+}
+
+
+class_data_tbl <- class_params_tbl %>%
+    mutate(acc_years = list(years_of_data)) %>%
+    mutate(data      = pmap(., calc_yearly_data)) %>%
+    select(division, class, data) %>%
+    unnest()
+```
+
+
+
+# Write to Disk
+
+
+```{r write_disk, echo=TRUE}
+class_data_tbl %>% write_csv    ('data/lm_overview.csv')
+class_data_tbl %>% write_feather('data/lm_overview.feather')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
