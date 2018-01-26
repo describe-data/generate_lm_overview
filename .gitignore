@@ -4,5 +4,4 @@
 
 .Rproj.user
 
-data/*.csv
 data/*.feather
