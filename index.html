@@ -36,16 +36,16 @@
             <div class="col-sm-12">
                 <div class="row">
 
-                    <div class="col-sm-12">
+                    <div class="col-sm-6">
                         <div class="chart-wrapper">
                             <div class="chart-title">
-                                Policy Start Date
-                                <button class="btn btn-primary pull-right btn-xs ladda-button" data-style="expand-left" onclick="ResetChart(timeChart);">
+                                Class
+                                <button class="btn btn-primary pull-right btn-xs ladda-button" data-style="expand-left" onclick="ResetChart(cartypeChart);">
                                     <span class="ladda-label">Reset</span>
                                 </button>
                             </div>
                             <div class="chart-stage">
-                                <div id="time-chart"></div>
+                                <div id="class-row-chart"></div>
                             </div>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                     <div class="col-sm-6">
                         <div class="chart-wrapper">
                             <div class="chart-title">
-                                Policy Status
+                                Division
                                 <button class="btn btn-primary pull-right btn-xs ladda-button" data-style="expand-left" onclick="ResetChart(statusChart);">
                                     <span class="ladda-label">Reset</span>
                                 </button>
@@ -67,85 +67,116 @@
                     <div class="col-sm-6">
                         <div class="chart-wrapper">
                             <div class="chart-title">
-                                Car Type
-                                <button class="btn btn-primary pull-right btn-xs ladda-button" data-style="expand-left" onclick="ResetChart(cartypeChart);">
-                                    <span class="ladda-label">Reset</span>
-                                </button>
-                            </div>
-                            <div class="chart-stage">
-                                <div id="class-type-row-chart"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3">
-                        <div class="chart-wrapper">
-                            <div class="chart-title">
-                                Claim
+                                Year of Account
                                 <button class="btn btn-primary pull-right btn-xs ladda-button" data-style="expand-left" onclick="ResetChart(claimChart);">
                                     <span class="ladda-label">Reset</span>
                                 </button>
                             </div>
                             <div class="chart-stage">
-                                <div id="yoa-pie-chart"></div>
+                                <div id="yoa-row-chart"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-sm-3">
+                </div>
+
+                <div class="row">
+
+                    <div class="col-sm-2">
                         <div class="chart-wrapper">
                             <div class="chart-title">
-                                Gender
-                                <button class="btn btn-primary pull-right btn-xs ladda-button" data-style="expand-left" onclick="ResetChart(genderChart);">
-                                    <span class="ladda-label">Reset</span>
-                                </button>
+                                Total Gross Written Premium
                             </div>
                             <div class="chart-stage">
-                                <div id="gender-type-pie-chart"></div>
+                                <div class="chart-nd" id="total-gwp-nd"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-sm-3">
+                    <div class="col-sm-2">
                         <div class="chart-wrapper">
                             <div class="chart-title">
-                                Total Number of Policies
+                                Incurred Total Claims
                             </div>
                             <div class="chart-stage">
-                                <div id="number-policies-nd"></div>
+                                <div class="chart-nd" id="claim_total_inc-nd"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-sm-3">
+                    <div class="col-sm-2">
                         <div class="chart-wrapper">
                             <div class="chart-title">
-                                Total Number of Claims
+                                Ultimate Total Claims
                             </div>
                             <div class="chart-stage">
-                                <div id="number-claims-nd"></div>
+                                <div class="chart-nd" id="claim_total_ult-nd"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-sm-3">
+                    <div class="col-sm-2">
                         <div class="chart-wrapper">
                             <div class="chart-title">
-                                Total Claims
+                                Incurred Attritional Claims
                             </div>
                             <div class="chart-stage">
-                                <div id="total-claims-nd"></div>
+                                <div class="chart-nd" id="claim_attr_inc-nd"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-sm-3">
+                    <div class="col-sm-2">
                         <div class="chart-wrapper">
                             <div class="chart-title">
-                                Total Premium Net of IPT
+                                Ultimate Attritional Claims
                             </div>
                             <div class="chart-stage">
-                                <div id="total-premiums-nd"></div>
+                                <div class="chart-nd" id="claim_attr_ult-nd"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <div class="chart-wrapper">
+                            <div class="chart-title">
+                                Incurred Large Loss Claims
+                            </div>
+                            <div class="chart-stage">
+                                <div class="chart-nd" id="claim_ll_inc-nd"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <div class="chart-wrapper">
+                            <div class="chart-title">
+                                Ultimate Large Loss Claims
+                            </div>
+                            <div class="chart-stage">
+                                <div class="chart-nd" id="claim_ll_ult-nd"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <div class="chart-wrapper">
+                            <div class="chart-title">
+                                Incurred Catastrophe Claims
+                            </div>
+                            <div class="chart-stage">
+                                <div class="chart-nd" id="claim_cat_inc-nd"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <div class="chart-wrapper">
+                            <div class="chart-title">
+                                Ultimate Catastrophe Claims
+                            </div>
+                            <div class="chart-stage">
+                                <div class="chart-nd" id="claim_cat_ult-nd"></div>
                             </div>
                         </div>
                     </div>

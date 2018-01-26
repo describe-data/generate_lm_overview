@@ -68,8 +68,7 @@ body.application hr {
     padding: 8px 10px 5px;
 }
 
-#number-policies-nd, #total-premiums-nd,
-#total-claims-nd, #number-claims-nd {
+.chart-nd {
     font-size: 40px;
 }
 
@@ -77,12 +76,6 @@ body.application hr {
     fill: black;
     font-size: 12px;
 }
-
-#map {
-    height: 100%;
-    width:100%;
-}
-
 #popuptable tr td:nth-child(1){
     width:60%;
 }

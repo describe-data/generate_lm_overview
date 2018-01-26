@@ -17,9 +17,8 @@ var invdict = _.invert(dict);
 
 var ndx;
 var allDim;
-var freezeToggle;
 
-// Data file - git set to ignore json files
+// Data file
 var policyDataFile = 'data/lm_overview.csv';
 
 var config = {
@@ -50,19 +49,19 @@ var currencyFormat = d3.format(",.2f");
 var latlngFormat = d3.format(".4f");
 
 //Charts
-
-
-//var timeChart = dc.barChart("#time-chart");
 var divisionChart = dc.rowChart("#division-row-chart");
 var classChart = dc.rowChart("#class-row-chart");
 var yoaChart = dc.rowChart("#yoa-row-chart");
-
-// var genderChart = dc.pieChart("#gender-type-pie-chart");
-// var numberPoliciesND = dc.numberDisplay("#number-policies-nd");
-// var numberClaimsND = dc.numberDisplay("#number-claims-nd");
-// var totalClaimsND = dc.numberDisplay("#total-claims-nd");
-// var totalPremiumsND = dc.numberDisplay("#total-premiums-nd");
-// var dynatable;
+var gwp_NumDisplay = dc.numberDisplay("#total-gwp-nd");
+var claim_attr_ultNumDisplay = dc.numberDisplay("#claim_attr_ult-nd");
+var claim_ll_ultNumDisplay = dc.numberDisplay("#claim_ll_ult-nd");
+var claim_cat_ultNumDisplay = dc.numberDisplay("#claim_cat_ult-nd");
+var claim_total_ultNumDisplay = dc.numberDisplay("#claim_total_ult-nd");
+var claim_attr_incNumDisplay = dc.numberDisplay("#claim_attr_inc-nd");
+var claim_ll_incNumDisplay = dc.numberDisplay("#claim_ll_inc-nd");
+var claim_cat_incNumDisplay = dc.numberDisplay("#claim_cat_inc-nd");
+var claim_total_incNumDisplay = dc.numberDisplay("#claim_total_inc-nd");
+var dynatable;
 
 queue()
     .defer(d3.csv, policyDataFile)
@@ -71,10 +70,15 @@ queue()
 function makeGraphs(error, policyCSV) {
 
     policyCSV.forEach(function (d) {
-        /*d["initial_date"] = dateFormat.parse(d["initial_date"]);
-        d["initial_date"].setDate(1);
-        d['claim_tot'] = commasFormat(d['claim_tot']);
-        d['prem'] = currencyFormat(d['prem']);*/
+        d['gwp'] = currencyFormat(d['gwp']);
+        d['claim_attr_ult'] = currencyFormat(d['claim_attr_ult']);
+        d['claim_ll_ult'] = currencyFormat(d['claim_ll_ult']);
+        d['claim_cat_ult'] = currencyFormat(d['claim_cat_ult']);
+        d['claim_total_ult'] = currencyFormat(d['claim_total_ult']);
+        d['claim_attr_inc'] = currencyFormat(d['claim_attr_inc']);
+        d['claim_ll_inc'] = currencyFormat(d['claim_ll_inc']);
+        d['claim_cat_inc'] = currencyFormat(d['claim_cat_inc']);
+        d['claim_total_inc'] = currencyFormat(d['claim_total_inc']);
     });
 
     //Create a Crossfilter instance with policy data
@@ -84,13 +88,13 @@ function makeGraphs(error, policyCSV) {
 
     //Define Dimensions
     var divisionDim = ndx.dimension(function (d) {
-        return d["division"];
+        return d['division'];
     });
     var classDim = ndx.dimension(function (d) {
-        return d["class"];
+        return d['class'];
     });
     var yoaDim = ndx.dimension(function (d) {
-        return d["yoa"];
+        return d['yoa'];
     });
 
     //Calculate metrics
@@ -100,70 +104,108 @@ function makeGraphs(error, policyCSV) {
 
     var all = ndx.groupAll();
 
-    var totalPrem = ndx.groupAll().reduceSum(function (d) {
-        return d["prem"];
+    var total_gwp = ndx.groupAll().reduceSum(function (d) {
+         return d["gwp"];
     });
 
-    var totalClaimAmount = ndx.groupAll().reduceSum(function (d) {
-        return d["claim_tot"];
+    var total_claim_attr_ult = ndx.groupAll().reduceSum(function (d) {
+         return d['claim_attr_ult'];
     });
 
-    var totalClaimNum = ndx.groupAll().reduceSum(function (d) {
-        return d["claim"] == true ? 1 : 0;
+    var total_claim_ll_ult = ndx.groupAll().reduceSum(function (d) {
+         return d['claim_ll_ult'];
     });
 
-    //Define values (to be used in charts)
-    function minDate() {
-        return startDim.bottom(1)[0]["initial_date"];
-    }
+    var total_claim_cat_ult = ndx.groupAll().reduceSum(function (d) {
+         return d['claim_cat_ult'];
+    });
 
-    function maxDate() {
-        return startDim.top(1)[0]["initial_date"];
-    }
+    var total_claim_total_ult = ndx.groupAll().reduceSum(function (d) {
+         return d['claim_total_ult'];
+    });
 
-    // numberPoliciesND
-    //     .formatNumber(commasFormat)
-    //     .valueAccessor(function (d) {
-    //         return d;
-    //     })
-    //     .group(all);
-    //
-    // numberClaimsND
-    //     .formatNumber(commasFormat)
-    //     .valueAccessor(function (d) {
-    //         return d;
-    //     })
-    //     .group(totalClaimNum);
-    //
-    // totalPremiumsND
-    //     .formatNumber(d3.format(".3s"))
-    //     .valueAccessor(function (d) {
-    //         return d;
-    //     })
-    //     .group(totalPrem);
-    //
-    // totalClaimsND
-    //     .formatNumber(d3.format(".3s"))
-    //     . valueAccessor(function (d) {
-    //         return d;
-    //     })
-    //     .group(totalClaimAmount);
+    var total_claim_attr_inc = ndx.groupAll().reduceSum(function (d) {
+         return d['claim_attr_inc'];
+    });
 
-    divisionChart
-        .width(400)
-        .height(275)
-        .dimension(divisionDim)
-        .group(divisionGroup)
-        .transitionDuration(config.transition)
-        .elasticX(true)
-        .title(function(d){
-            return "Division: " + d.key + "\nTotal Policies: " + (d.value ? commasFormat(d.value) : 0);
+    var total_claim_ll_inc = ndx.groupAll().reduceSum(function (d) {
+         return d['claim_ll_inc'];
+    });
+
+    var total_claim_cat_inc = ndx.groupAll().reduceSum(function (d) {
+         return d['claim_cat_inc'];
+    });
+
+    var total_claim_total_inc = ndx.groupAll().reduceSum(function (d) {
+         return d['claim_total_inc'];
+    });
+
+    gwp_NumDisplay
+         .formatNumber(d3.format(".3s"))
+         .valueAccessor(function (d) {
+             return d;
+         })
+         .group(total_gwp);
+
+    claim_attr_ultNumDisplay
+        .formatNumber(d3.format(".3s"))
+        .valueAccessor(function (d) {
+            return d;
         })
-        .xAxis().ticks(4);
+        .group(total_claim_attr_ult);
+
+    claim_ll_ultNumDisplay
+        .formatNumber(d3.format(".3s"))
+        .valueAccessor(function (d) {
+            return d;
+        })
+        .group(total_claim_ll_ult);
+
+    claim_cat_ultNumDisplay
+        .formatNumber(d3.format(".3s"))
+        .valueAccessor(function (d) {
+            return d;
+        })
+        .group(total_claim_cat_ult);
+
+    claim_total_ultNumDisplay
+        .formatNumber(d3.format(".3s"))
+        .valueAccessor(function (d) {
+            return d;
+        })
+        .group(total_claim_total_ult);
+
+    claim_attr_incNumDisplay
+        .formatNumber(d3.format(".3s"))
+        .valueAccessor(function (d) {
+            return d;
+        })
+        .group(total_claim_attr_inc);
+
+    claim_ll_incNumDisplay
+        .formatNumber(d3.format(".3s"))
+        .valueAccessor(function (d) {
+            return d;
+        })
+        .group(total_claim_ll_inc);
+
+    claim_cat_incNumDisplay
+        .formatNumber(d3.format(".3s"))
+        .valueAccessor(function (d) {
+            return d;
+        })
+        .group(total_claim_cat_inc);
+
+    claim_total_incNumDisplay
+        .formatNumber(d3.format(".3s"))
+        .valueAccessor(function (d) {
+            return d;
+        })
+        .group(total_claim_total_inc);
 
     classChart
-        .width(400)
-        .height(275)
+        .width(1000)
+        .height(500)
         .dimension(classDim)
         .group(classGroup)
         .transitionDuration(config.transition)
@@ -173,9 +215,21 @@ function makeGraphs(error, policyCSV) {
         })
         .xAxis().ticks(4);
 
+    divisionChart
+        .width(1000)
+        .height(200)
+        .dimension(divisionDim)
+        .group(divisionGroup)
+        .transitionDuration(config.transition)
+        .elasticX(true)
+        .title(function(d){
+            return "Division: " + d.key + "\nTotal Policies: " + (d.value ? commasFormat(d.value) : 0);
+        })
+        .xAxis().ticks(4);
+
     yoaChart
-        .width(160)
-        .height(160)
+        .width(1000)
+        .height(240)
         .dimension(yoaDim)
         .group(yoaGroup)
         .transitionDuration(config.transition)
@@ -183,18 +237,6 @@ function makeGraphs(error, policyCSV) {
         .title(function (d) {
             return "Year of Account: " + d.key + "\nTotal Policies: " + (d.value ? commasFormat(d.value) : 0);
         });
-
-    // genderChart
-    //     .height(160)
-    //     .width(160)
-    //     .radius(80)
-    //     .innerRadius(30)
-    //     .dimension(genderDim)
-    //     .group(numPolsByGender)
-    //     .transitionDuration(config.transition)
-    //     .title(function (d) {
-    //         return (d.key == 'M' ? 'Males: ' : 'Females: ') + (d.value ? commasFormat(d.value) : 0);
-    //     });
 
     $('#data-table').dynatable({
         features: {
