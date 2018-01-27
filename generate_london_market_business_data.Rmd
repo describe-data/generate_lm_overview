@@ -25,7 +25,6 @@ options(width = 80
        ,warn  = 1
         )
 
-
 knitr::knit_hooks$set(timeit = local({
     now = NULL
   
@@ -151,9 +150,12 @@ class_data_tbl <- class_params_tbl %>%
     mutate(data      = pmap(., calc_yearly_data)) %>%
     select(division, class, data) %>%
     unnest()
+
+class_data_tbl <- mutate_if(class_data_tbl, is.numeric, as.integer)
+
+class_data_tbl %>% glimpse
+
 ```
-
-
 
 # Write to Disk
 

@@ -204,7 +204,7 @@ function makeGraphs(error, policyCSV) {
         .group(total_claim_total_inc);
 
     classChart
-        .width(1000)
+        .width(900)
         .height(500)
         .dimension(classDim)
         .group(classGroup)
@@ -216,7 +216,7 @@ function makeGraphs(error, policyCSV) {
         .xAxis().ticks(4);
 
     divisionChart
-        .width(1000)
+        .width(900)
         .height(200)
         .dimension(divisionDim)
         .group(divisionGroup)
@@ -228,7 +228,7 @@ function makeGraphs(error, policyCSV) {
         .xAxis().ticks(4);
 
     yoaChart
-        .width(1000)
+        .width(900)
         .height(240)
         .dimension(yoaDim)
         .group(yoaGroup)
