@@ -102,8 +102,6 @@ function makeGraphs(error, policyCSV) {
     var classGroup = classDim.group();
     var yoaGroup = yoaDim.group();
 
-    var all = ndx.groupAll();
-
     var total_gwp = ndx.groupAll().reduceSum(function (d) {
          return d["gwp"];
     });
@@ -141,73 +139,74 @@ function makeGraphs(error, policyCSV) {
     });
 
     gwp_NumDisplay
-         .formatNumber(d3.format(".3s"))
+         .formatNumber(commasFormat )
          .valueAccessor(function (d) {
              return d;
          })
          .group(total_gwp);
 
     claim_attr_ultNumDisplay
-        .formatNumber(d3.format(".3s"))
+        .formatNumber(commasFormat )
         .valueAccessor(function (d) {
             return d;
         })
         .group(total_claim_attr_ult);
 
     claim_ll_ultNumDisplay
-        .formatNumber(d3.format(".3s"))
+        .formatNumber(commasFormat )
         .valueAccessor(function (d) {
             return d;
         })
         .group(total_claim_ll_ult);
 
     claim_cat_ultNumDisplay
-        .formatNumber(d3.format(".3s"))
+        .formatNumber(commasFormat )
         .valueAccessor(function (d) {
             return d;
         })
         .group(total_claim_cat_ult);
 
     claim_total_ultNumDisplay
-        .formatNumber(d3.format(".3s"))
+        .formatNumber(commasFormat )
         .valueAccessor(function (d) {
             return d;
         })
         .group(total_claim_total_ult);
 
     claim_attr_incNumDisplay
-        .formatNumber(d3.format(".3s"))
+        .formatNumber(commasFormat )
         .valueAccessor(function (d) {
             return d;
         })
         .group(total_claim_attr_inc);
 
     claim_ll_incNumDisplay
-        .formatNumber(d3.format(".3s"))
+        .formatNumber(commasFormat)
         .valueAccessor(function (d) {
             return d;
         })
         .group(total_claim_ll_inc);
 
     claim_cat_incNumDisplay
-        .formatNumber(d3.format(".3s"))
+        .formatNumber(commasFormat)
         .valueAccessor(function (d) {
             return d;
         })
         .group(total_claim_cat_inc);
 
     claim_total_incNumDisplay
-        .formatNumber(d3.format(".3s"))
+        .formatNumber(commasFormat)
         .valueAccessor(function (d) {
             return d;
         })
         .group(total_claim_total_inc);
 
     classChart
-        .width(900)
+        .width(920)
         .height(500)
         .dimension(classDim)
         .group(classGroup)
+        .on('renderlet', RefreshTable) // this event fires when charts are changed and upates the table
         .transitionDuration(config.transition)
         .elasticX(true)
         .title(function(d){
@@ -216,7 +215,7 @@ function makeGraphs(error, policyCSV) {
         .xAxis().ticks(4);
 
     divisionChart
-        .width(900)
+        .width(920)
         .height(200)
         .dimension(divisionDim)
         .group(divisionGroup)
@@ -228,7 +227,7 @@ function makeGraphs(error, policyCSV) {
         .xAxis().ticks(4);
 
     yoaChart
-        .width(900)
+        .width(920)
         .height(240)
         .dimension(yoaDim)
         .group(yoaGroup)
